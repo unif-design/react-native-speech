@@ -25,7 +25,7 @@ import { useVoiceInput } from '@unif/react-native-speech/input';
 // 内含服务端签发的临时 token、expiresAtSeconds、wsUrl。
 const credentials = createSpeechCredentialAccess(request);
 
-function Input() {
+function useInput() {
   return useVoiceInput({
     permissions, // request('microphone')、read(['microphone'])
     openRecognition: handlers => openSpeechSession({

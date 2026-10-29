@@ -81,6 +81,8 @@ coverage/
 *.tsbuildinfo
 *.tgz
 *.log
+__pycache__/
+*.pyc
 *.jsbundle
 *.jsbundle.map
 website/.docusaurus/
