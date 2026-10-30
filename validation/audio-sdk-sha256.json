@@ -1,0 +1,7 @@
+{
+  "android/src/main/java/expo/modules/audio/AudioStream.kt": "4d1723a7e9dd98eff23e477d1523575d7f6bc038b26e5deb49332a6d32624879",
+  "ios/AudioStream.swift": "ecd8231324360e21bc5879fe9af86c79d13f762ab543c566657f8ab0a4bef5a3",
+  "ios/AudioModule.swift": "fe461b51c1e22a7525c933e169d82788f5f9a3a645f21bbc13e1b16d7fb5ad01",
+  "src/AudioStream.types.ts": "15b208dc9cbb2cf290862cb64dc8bdaad76e07e13fa789b887877aeb47cd9eba",
+  "build/AudioStream.types.d.ts": "9916b3cb89be678ab4fc72cda80afe71d5e5b31de7aa742b4006ed37c510375b"
+}

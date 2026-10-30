@@ -1,0 +1,51 @@
+{
+  "compilerOptions": {
+    "rootDir": ".",
+    "paths": {
+      "@unif/react-native-speech": [
+        "./src/index"
+      ],
+      "@unif/react-native-speech/*": [
+        "./src/*"
+      ]
+    },
+    "allowUnreachableCode": false,
+    "allowUnusedLabels": false,
+    "customConditions": [
+      "unif-react-native-speech-source"
+    ],
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "jsx": "react-jsx",
+    "lib": [
+      "ESNext"
+    ],
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "noEmit": true,
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitReturns": true,
+    "noUncheckedIndexedAccess": false,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "target": "ESNext",
+    "verbatimModuleSyntax": true,
+    "types": [
+      "jest",
+      "node"
+    ]
+  },
+  "include": [
+    "src",
+    "__tests__",
+    "example/src"
+  ],
+  "exclude": [
+    "node_modules",
+    "lib",
+    "website"
+  ]
+}

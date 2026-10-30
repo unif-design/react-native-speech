@@ -1,0 +1,32 @@
+---
+id: development
+slug: /development
+---
+
+# 研发与验证
+
+本库采用组织标准 `a29d71586a63a1b39d9a3acc446741289150ac41`，包括等价提取、SDK 补丁交付及真实消费者要求。源码分为凭证、实时识别、采集和输入四个单元；宿主保留身份、平台换凭证、业务词表及界面。内部协议与轮次协调器不公开，默认值、错误、取消、并发和资源归属保持原契约。
+
+```sh
+yarn install --immutable
+yarn typecheck
+yarn test --runInBand
+yarn build
+yarn website typecheck
+yarn website test
+yarn website build
+yarn example android
+yarn example ios
+```
+
+example 保留实际 iOS／Android 工程、Expo Modules 注册与麦克风权限。运行后输入服务端签发的临时 token、expiresAtSeconds、wsUrl，点击开始录音；不使用固定或模拟识别结果。不提交真实凭证，示例只在内存持有它们。
+
+库 CI 使用官方 SDK 完成类型检查、行为测试、打包和示例编译。行为测试运行真实缓存、协议、会话和输入组合，替换网络、权限及麦克风边界；原有编码校验、中断、失败和清理断言保持不变。事件扩展字段在库边界检查，不要求 SDK 的原版声明先被修改。
+
+宿主集成另行验证修补后的 SDK。`test:consumer` 检查已准备好的干净消费者、真实 tarball、公开入口、补丁声明及 SDK 文件摘要；准备步骤见原生接线。原生边界夹具供具备已修补 SDK 的验证环境编译 Kotlin／Swift，系统绑定受控，不等同硬件验证。测试脚本不安装或修改消费者 SDK。
+
+正式交付同时需要库 CI 与宿主集成证据。完整原生构建、实际短读／采样转换、系统中断、权限拒绝、取消、重复接管、资源释放和真实服务转写分别记录；官方 SDK 的示例编译、网站构建与 Web unsupported 均不能替代补丁行为验证。
+
+采用组织 `.github` 的 CI、保护规则、发布和 LLM 文档生成器。开发、测试、审查、交付分别使用 `unif-portal-dev-skills:code-development`、`code-testing`、`code-review`、`code-delivery`，无需安装不存在的 Speech 专项技能。公共协议、输入默认值、终态和原生补丁变化必须复核实际消费者。
+
+Git 提交和 PR 使用中文；正式 npm 版本经受保护分支与 release.yml 的 Trusted Publisher 发布。发布包校验、网站部署与设备验收各自提供证据。原始运行产物与个人设备记录留在仓库外。
