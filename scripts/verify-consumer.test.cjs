@@ -100,60 +100,69 @@ test('consumer verification rejects a different tarball before SDK or type verif
   }
 });
 
-test('consumer verification rejects an empty public API fixture', () => {
-  const consumer = fs.mkdtempSync(
-    path.join(os.tmpdir(), 'speech-consumer-empty-'),
-  );
-  try {
-    const installed = path.join(
-      consumer,
-      'node_modules',
-      '@unif',
-      'react-native-speech',
+for (const emptyFixture of ['consumer.ts', 'sdk-types.ts']) {
+  test(`consumer verification rejects an empty ${emptyFixture} fixture`, () => {
+    const consumer = fs.mkdtempSync(
+      path.join(os.tmpdir(), 'speech-consumer-empty-'),
     );
-    fs.mkdirSync(installed, { recursive: true });
-    fs.writeFileSync(
-      path.join(installed, 'package.json'),
-      JSON.stringify({
-        ...require('../package.json'),
-        exports: { './package.json': './package.json' },
-      }),
-    );
-    const tarball = path.join(consumer, 'speech.tgz');
-    fs.writeFileSync(tarball, 'controlled-artifact');
-    const integrity =
-      'sha512-' +
-      require('node:crypto')
-        .createHash('sha512')
-        .update(fs.readFileSync(tarball))
-        .digest('base64');
-    fs.writeFileSync(
-      path.join(consumer, 'package-lock.json'),
-      JSON.stringify({
-        packages: {
-          'node_modules/@unif/react-native-speech': {
-            resolved: 'file:speech.tgz',
-            integrity,
+    try {
+      const installed = path.join(
+        consumer,
+        'node_modules',
+        '@unif',
+        'react-native-speech',
+      );
+      fs.mkdirSync(installed, { recursive: true });
+      fs.writeFileSync(
+        path.join(installed, 'package.json'),
+        JSON.stringify({
+          ...require('../package.json'),
+          exports: { './package.json': './package.json' },
+        }),
+      );
+      const tarball = path.join(consumer, 'speech.tgz');
+      fs.writeFileSync(tarball, 'controlled-artifact');
+      const integrity =
+        'sha512-' +
+        require('node:crypto')
+          .createHash('sha512')
+          .update(fs.readFileSync(tarball))
+          .digest('base64');
+      fs.writeFileSync(
+        path.join(consumer, 'package-lock.json'),
+        JSON.stringify({
+          packages: {
+            'node_modules/@unif/react-native-speech': {
+              resolved: 'file:speech.tgz',
+              integrity,
+            },
           },
+        }),
+      );
+      for (const name of ['consumer.ts', 'sdk-types.ts']) {
+        fs.writeFileSync(
+          path.join(consumer, name),
+          name === emptyFixture
+            ? ''
+            : fs.readFileSync(path.join(__dirname, '../validation', name)),
+        );
+      }
+      const result = spawnSync(
+        process.execPath,
+        [path.join(__dirname, 'verify-consumer.cjs')],
+        {
+          env: {
+            ...process.env,
+            UNIF_SPEECH_CONSUMER: consumer,
+            UNIF_SPEECH_TARBALL: tarball,
+          },
+          encoding: 'utf8',
         },
-      }),
-    );
-    fs.writeFileSync(path.join(consumer, 'consumer.ts'), '');
-    const result = spawnSync(
-      process.execPath,
-      [path.join(__dirname, 'verify-consumer.cjs')],
-      {
-        env: {
-          ...process.env,
-          UNIF_SPEECH_CONSUMER: consumer,
-          UNIF_SPEECH_TARBALL: tarball,
-        },
-        encoding: 'utf8',
-      },
-    );
-    assert.notEqual(result.status, 0);
-    assert.match(result.stderr, /must compile the complete public API fixture/);
-  } finally {
-    fs.rmSync(consumer, { recursive: true, force: true });
-  }
-});
+      );
+      assert.notEqual(result.status, 0);
+      assert.match(result.stderr, /must compile the complete .* fixture/);
+    } finally {
+      fs.rmSync(consumer, { recursive: true, force: true });
+    }
+  });
+}

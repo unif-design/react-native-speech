@@ -56,12 +56,15 @@ assert.equal(
     createHash('sha512').update(fs.readFileSync(tarball)).digest('base64'),
 );
 
-const fixture = path.join(consumer, 'consumer.ts');
-assert.equal(
-  fs.readFileSync(fixture, 'utf8'),
-  fs.readFileSync(path.join(__dirname, '../validation/consumer.ts'), 'utf8'),
-  'Consumer must compile the complete public API fixture',
-);
+const fixtures = ['consumer.ts', 'sdk-types.ts'].map((name) => {
+  const fixture = path.join(consumer, name);
+  assert.equal(
+    fs.readFileSync(fixture, 'utf8'),
+    fs.readFileSync(path.join(__dirname, '../validation', name), 'utf8'),
+    `Consumer must compile the complete ${name} fixture`,
+  );
+  return fixture;
+});
 
 const fromLibrary = createRequire(manifest);
 for (const name of ['expo-audio', '@unif/react-native-logger', 'react']) {
@@ -77,10 +80,12 @@ const ts = require('typescript');
 const configFile = path.join(consumer, 'tsconfig.json');
 const parsed = ts.getParsedCommandLineOfConfigFile(configFile, {}, ts.sys);
 assert(parsed, 'Consumer must provide its own tsconfig.json');
-assert(
-  parsed.fileNames.includes(fixture),
-  'consumer.ts must be included in type checking',
-);
+for (const fixture of fixtures) {
+  assert(
+    parsed.fileNames.includes(fixture),
+    `${path.basename(fixture)} must be included in type checking`,
+  );
+}
 assert(
   parsed.options.strict && !parsed.options.noCheck,
   'Consumer requires strict type checking',

@@ -1,4 +1,7 @@
-import type { AudioStreamBuffer, AudioStreamStatus } from 'expo-audio';
+import type {
+  AudioStreamBufferEvent,
+  AudioStreamStatusEvent,
+} from '../../src/capture/types';
 
 export function deferredStart() {
   let resolve!: () => void;
@@ -15,8 +18,8 @@ export class AudioStreamFixture {
   channels = 1;
   isStreaming = false;
   calls: string[] = [];
-  buffers!: (buffer: AudioStreamBuffer) => void;
-  statuses!: (status: AudioStreamStatus) => void;
+  buffers!: (buffer: AudioStreamBufferEvent) => void;
+  statuses!: (status: AudioStreamStatusEvent) => void;
   removeBuffer = jest.fn(() => {
     this.calls.push('removeBuffer');
   });
@@ -43,7 +46,7 @@ export class AudioStreamFixture {
     return { remove: this.removeStatus };
   });
 
-  buffer(overrides: Partial<AudioStreamBuffer> = {}) {
+  buffer(overrides: Partial<AudioStreamBufferEvent> = {}) {
     this.buffers({
       data: new ArrayBuffer(8),
       sampleRate: this.sampleRate,

@@ -6,7 +6,7 @@ import type {
   AudioStreamStatus,
 } from 'expo-audio';
 
-// The SDK-prepared verification environment checks these public types without executing native code.
+// The prepared host checks its patched SDK declarations without executing native code.
 export type PublicNativeStream = InstanceType<typeof AudioModule.AudioStream>;
 export type PublicActualEncoding = AudioStreamBuffer['encoding'];
 export type PublicTerminalError = NonNullable<AudioStreamStatus['error']>;

@@ -1,5 +1,5 @@
 import { AudioModule } from 'expo-audio';
-import type { AudioStreamBuffer } from 'expo-audio';
+import type { AudioStreamBufferEvent } from '../../src/capture/types';
 import { openAudioCapture } from '@unif/react-native-speech/capture';
 import type { AudioCaptureInput } from '@unif/react-native-speech/capture';
 import { AudioStreamFixture, deferredStart } from './audioStreamFixture';
@@ -121,7 +121,7 @@ test.each([
   const callbacks = handlers();
   const capture = openAudioCapture(input, callbacks);
   await capture.started;
-  stream.buffer(overrides as unknown as Partial<AudioStreamBuffer>);
+  stream.buffer(overrides as unknown as Partial<AudioStreamBufferEvent>);
   stream.buffer();
   stream.statuses({ isStreaming: false, error: 'unavailable' });
   expect(callbacks.onBuffer).not.toHaveBeenCalled();

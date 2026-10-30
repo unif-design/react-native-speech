@@ -9,5 +9,5 @@
     "lib": ["ESNext"],
     "jsx": "react-jsx"
   },
-  "include": ["consumer.ts"]
+  "include": ["consumer.ts", "sdk-types.ts"]
 }

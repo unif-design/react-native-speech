@@ -1,5 +1,5 @@
 import { AudioModule } from 'expo-audio';
-import type { AudioStream, AudioStreamBuffer } from 'expo-audio';
+import type { AudioStream } from 'expo-audio';
 import {
   AUDIO_CAPTURE_MESSAGES,
   AUDIO_STREAM_FORMAT_ERROR_CODE,
@@ -13,9 +13,15 @@ import type {
   AudioCaptureInput,
   AudioCaptureStartResult,
   AudioCaptureStopResult,
+  AudioStreamBufferEvent,
+  AudioStreamStatusEvent,
 } from './types';
 
-function isFormatValid(format: Readonly<AudioCaptureInput>): boolean {
+function isFormatValid(
+  format: Omit<Readonly<AudioCaptureInput>, 'encoding'> & {
+    encoding?: unknown;
+  },
+): format is Readonly<AudioCaptureInput> {
   return (
     Number.isSafeInteger(format.sampleRate) &&
     format.sampleRate > 0 &&
@@ -109,7 +115,7 @@ export function openAudioCapture(
     }
   }
 
-  function handleBuffer(buffer: AudioStreamBuffer): void {
+  function handleBuffer(buffer: AudioStreamBufferEvent): void {
     if (!adopting) return;
     if (
       !buffer ||
@@ -142,13 +148,18 @@ export function openAudioCapture(
       stream = new AudioModule.AudioStream(options);
       subscriptions.push(stream.addListener('audioStreamBuffer', handleBuffer));
       subscriptions.push(
-        stream.addListener('audioStreamStatus', (status) => {
-          if (!adopting || !status.error) return;
-          if (status.error === 'cleanup') cleanupFailed = true;
-          fail(
-            captureError(status.error === 'format' ? 'format' : 'unavailable'),
-          );
-        }),
+        stream.addListener(
+          'audioStreamStatus',
+          (status: AudioStreamStatusEvent) => {
+            if (!adopting || !status.error) return;
+            if (status.error === 'cleanup') cleanupFailed = true;
+            fail(
+              captureError(
+                status.error === 'format' ? 'format' : 'unavailable',
+              ),
+            );
+          },
+        ),
       );
       await stream.start();
     } catch (error) {
