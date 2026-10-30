@@ -1,56 +1,55 @@
 # @unif/react-native-speech
 
-为 React Native 应用提供音频采集、临时凭证缓存、实时语音识别和语音输入 Hook。支持 iOS／Android；Web 的采集与识别返回 `unsupported`。
+为 React Native 应用提供音频采集、临时凭证缓存、实时识别和语音输入 Hook。库交付文字与状态，由应用决定如何采用，不自动发送消息。
 
-[文档网站](https://unif-design.github.io/react-native-speech/) · [npm](https://www.npmjs.com/package/@unif/react-native-speech) · [API](docs/api/input.md) · [原生示例](example/README.md) · [MIT 许可证](LICENSE)
+[文档站](https://unif-design.github.io/react-native-speech/) · [快速开始](docs/quick-start.md) · [API](docs/api/input.md) · [原生示例](example/README.md) · [npm](https://www.npmjs.com/package/@unif/react-native-speech) · [MIT 许可证](LICENSE)
 
-## 安装
+## 接入要求
 
-```sh
-npm install @unif/react-native-speech
-```
+iOS／Android 需要完整原生宿主、麦克风权限和服务端签发的临时凭证。Expo Go 无法提供所需音频补丁；Web 可使用凭证校验和缓存，采集与识别返回 `unsupported`。
 
-依赖版本与原生配置见[接入文档](docs/native-setup.md)，完整接入流程见[快速开始](docs/quick-start.md)。
+| 依赖         | 支持要求                 | 本仓开发组合 |
+| ------------ | ------------------------ | ------------ |
+| React        | `>=19.3.1`               | 19.3.1       |
+| React Native | `>=0.88.1`               | 0.88.1       |
+| Logger       | `^0.1.3`                 | 0.1.3        |
+| expo-audio   | 精确 58.0.10，需宿主补丁 | 58.0.10      |
 
-## 最小用法
+Expo Modules、权限和补丁配置见[原生接线](docs/native-setup.md)。补丁由宿主统一维护，本包不附带或自动应用；开发组合不代表全部版本组合已通过设备和识别服务验证。
 
-```tsx
-import { createSpeechCredentialAccess } from '@unif/react-native-speech/credentials';
-import { openSpeechSession } from '@unif/react-native-speech/realtime';
+## 安装与准备
+
+1. 安装本库及依赖：
+
+   ```sh
+   npm install @unif/react-native-speech @unif/react-native-logger@^0.1.3 expo-audio@58.0.10
+   ```
+
+2. 按[原生接线](docs/native-setup.md)准备补丁后的 SDK，同步 iOS Pods 并重新构建应用。
+3. 按[快速开始](docs/quick-start.md#创建识别入口)创建绑定当前身份的 `openRecognition`，并提供麦克风权限适配 `permissions`。临时凭证请求和 UUID 函数由宿主提供。
+
+## 接入语音输入
+
+下面的 Hook 使用上述两个宿主对象，`onResult` 由页面提供，用于处理本次文字、失败或取消结果：
+
+```ts
 import { useVoiceInput } from '@unif/react-native-speech/input';
+import type { UseVoiceInputOptions } from '@unif/react-native-speech/input';
 
-// 在一个有效身份范围中创建。request 返回 SpeechCredentialResult，
-// 内含服务端签发的临时 token、expiresAtSeconds、wsUrl。
-const credentials = createSpeechCredentialAccess(request);
-
-function useInput() {
-  return useVoiceInput({
-    permissions, // request('microphone')、read(['microphone'])
-    openRecognition: handlers => openSpeechSession({
-      credentials,
-      createUuid, // 使用宿主原有 UUID 函数
-    }, handlers),
-    onResult(result) {
-      // 按 result.status 采用文字、展示失败或保留原草稿；不自动发送。
-    },
-  });
+export function useMessageVoiceInput(
+  onResult: UseVoiceInputOptions['onResult'],
+) {
+  return useVoiceInput({ permissions, openRecognition, onResult });
 }
 ```
 
-这里的 `request`、`permissions`、`createUuid` 和结果采用由宿主提供，完整可运行接线见 [example](example/src/App.tsx)。身份结束时分别 `cancel('context_ended')`、关闭识别句柄和 `credentials.dispose()`；释放凭证不能替代停止麦克风。
+页面调用返回对象的 `start()`、`stop()` 或 `cancel('user')`，使用 `state` 和 `transcript` 展示过程。最终文字以 `onResult` 为准，由页面应用到草稿，详见[输入 API](docs/api/input.md)。
 
-## 公开 API
+身份结束时调用 `cancel('context_ended')`，关闭所属识别会话并释放凭证访问。释放凭证不能替代停止麦克风；完整生命周期见[快速开始](docs/quick-start.md#连接输入)。
 
-| 入口 | 能力 |
-| --- | --- |
-| `/credentials` | `createSpeechCredentialAccess(request)`、`readSpeechCredential`、固定失败文案与凭证类型；不加载录音 SDK |
-| `/realtime` | `openSpeechSession(input, handlers)`、`SPEECH_AUDIO_FORMAT` 与会话类型；不启动麦克风 |
-| `/capture` | `openAudioCapture(input, handlers)` 与实际 PCM、开始／停止结果类型 |
-| `/input` | `useVoiceInput(options)` 与权限、阶段和一次性结果类型 |
-| 包根 | 上述公开 API 的便捷汇总；按需使用独立入口避免加载不需要的能力 |
+## 更多用法
 
-宿主负责身份、权限、服务端凭证请求和业务结果采用。输入默认值、结果与资源生命周期见 [API 文档](docs/api/input.md)。
-
-## 开发
-
-开发与验证见[研发文档](docs/DEVELOPMENT.md)，提交约定见[贡献指南](CONTRIBUTING.md)。
+- [凭证访问](docs/api/credentials.md)：校验、缓存、失效和宿主请求契约。
+- [实时识别](docs/api/realtime.md)、[音频采集](docs/api/capture.md)：独立入口、PCM 格式和资源释放。
+- [原生示例](example/README.md)：权限、凭证、录音和识别接线。
+- [开发资料](docs/DEVELOPMENT.md)与[贡献指南](CONTRIBUTING.md)：构建、检查和交付。
