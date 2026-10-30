@@ -1,18 +1,16 @@
 # @unif/react-native-speech
 
-React Native 按次 PCM 音频采集、临时凭证缓存、实时语音识别与语音输入 Hook。iOS／Android 使用现有 Expo Audio 和 RN WebSocket；Web 的采集与识别明确返回 `unsupported`。
+为 React Native 应用提供音频采集、临时凭证缓存、实时语音识别和语音输入 Hook。支持 iOS／Android；Web 的采集与识别返回 `unsupported`。
 
 [文档网站](https://unif-design.github.io/react-native-speech/) · [npm](https://www.npmjs.com/package/@unif/react-native-speech) · [API](docs/api/input.md) · [原生示例](example/README.md) · [MIT 许可证](LICENSE)
 
-## 安装与 peer 依赖
+## 安装
 
 ```sh
-npm install @unif/react-native-speech @unif/react-native-logger expo-audio@58.0.10
+npm install @unif/react-native-speech
 ```
 
-依赖宿主 React 19.3.1、React Native 0.88.1、Expo 58.0.20 / Expo Modules 58.0.27。`expo-audio` 必须精确为 **58.0.10**，由宿主应用其维护的音频补丁；本包不分发补丁或自动修改 SDK。完成宿主的补丁准备后重新安装 Pods 并重建原生应用。Android 须配置 `expo.autolinking.android.buildFromSource: ["expo-audio"]`，详见[原生接线](docs/native-setup.md)。不能用 Expo Go 或网站验证该补丁。
-
-`@unif/react-native-logger@^0.1.3` 是 peer，宿主及兄弟库共用同一实例；宿主按 logger 文档安装日志，不在每个识别会话初始化一次。
+依赖版本与原生配置见[接入文档](docs/native-setup.md)，完整接入流程见[快速开始](docs/quick-start.md)。
 
 ## 最小用法
 
@@ -51,21 +49,8 @@ function useInput() {
 | `/input` | `useVoiceInput(options)` 与权限、阶段和一次性结果类型 |
 | 包根 | 上述公开 API 的便捷汇总；按需使用独立入口避免加载不需要的能力 |
 
-固定模型 `qwen-audio-3.0-asr-flash-streaming`，16000 Hz、int16 小端单声道。输入权限通过后最多 60000ms，停止后的识别等待最多 2000ms；这不替代原生资源收尾。partial/final、已确认／未确认文字、失败、取消分别交付，详见 [API 文档](docs/api/input.md)。
+宿主负责身份、权限、服务端凭证请求和业务结果采用。输入默认值、结果与资源生命周期见 [API 文档](docs/api/input.md)。
 
-长期供应商密钥由服务端管理。库不包含平台 HTTP 客户端、账号 store 或业务词表；不会把 token、音频或识别全文写入诊断。
+## 开发
 
-## 开发与验证
-
-```sh
-yarn install --immutable
-yarn typecheck
-yarn test --runInBand
-yarn build
-yarn test:consumer
-yarn website typecheck
-yarn website test
-yarn website build
-```
-
-JS 测试、SDK 边界测试、打包／类型消费、原生构建和真机服务联调分别验证，详见[研发入口](docs/DEVELOPMENT.md)。真实服务凭证和设备由运行者提供。
+开发与验证见[研发文档](docs/DEVELOPMENT.md)，提交约定见[贡献指南](CONTRIBUTING.md)。
