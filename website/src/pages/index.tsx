@@ -7,7 +7,7 @@ export default function Home(): ReactNode {
   return (
     <Layout
       title="音频采集与实时识别"
-      description="按次采集 PCM、管理临时凭证和实时识别，向输入场景交付文字。"
+      description="为 React Native 应用采集 PCM 音频、管理临时凭证并实时转写，提供可组合的语音输入 Hook。"
     >
       <main className="unif-home speech-home">
         <section className="hp-hero speech-container">
@@ -18,7 +18,8 @@ export default function Home(): ReactNode {
             <span className="accent">到可编辑的文字。</span>
           </h1>
           <p className="hp-tagline">
-            按次采集、临时凭证、实时识别与语音输入。宿主掌握身份与文字采用，库处理本轮状态和资源收尾。
+            采集麦克风音频并实时转写，通过 Hook
+            处理开始、停止与取消。应用负责权限、凭证请求及文字采用。
           </p>
           <div className="hp-cta-row">
             <Link className="hp-btn hp-btn-primary" to="/docs/quick-start">
@@ -42,12 +43,16 @@ export default function Home(): ReactNode {
           </article>
           <article>
             <h2>实时识别</h2>
-            <p>临时凭证在原上下文内复用，逐句交付 partial、final 与终态。</p>
+            <p>
+              在同一身份中复用临时凭证，逐句交付识别中的文字、定稿及结束结果。
+            </p>
             <Link to="/docs/api/realtime">识别会话 →</Link>
           </article>
           <article>
-            <h2>输入轮次</h2>
-            <p>权限、取消、接管和麦克风释放共同约束一次文字交付。</p>
+            <h2>语音输入</h2>
+            <p>
+              协调权限、识别和采集，支持停止、取消与新输入接管，并等待麦克风释放。
+            </p>
             <Link to="/docs/api/input">输入 Hook →</Link>
           </article>
         </section>
