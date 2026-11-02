@@ -97,6 +97,35 @@ afterEach(() => {
   global.WebSocket = originalSocket;
 });
 
+test.each([
+  ['access', 401, '登录状态暂时不可用，请确认登录后重试。'],
+  ['access', 403, '当前账号无权进行此操作。'],
+  ['access', undefined, '登录状态暂时不可用，请确认登录后重试。'],
+  ['rejected', 429, '请求较多，请稍后重试。'],
+  ['invalid_response', undefined, '返回的信息无法确认，请稍后重试。'],
+  ['unavailable', 503, '服务暂时无法处理请求，请稍后重试。'],
+] as const)(
+  '凭证 %s HTTP %s 的安全说明保留到语音界面，不公开原始内容',
+  async (reason, httpStatus, message) => {
+    const f = setup();
+    f.resolve({
+      status: 'failed',
+      reason,
+      httpStatus,
+      message: 'private-token',
+    });
+    await Promise.resolve();
+    expect(f.handlers.onError).toHaveBeenCalledTimes(1);
+    expect(f.handlers.onError).toHaveBeenCalledWith({
+      reason: 'credential',
+      message,
+    });
+    expect(SocketFixture.instances).toHaveLength(0);
+    expect(f.access.invalidate).not.toHaveBeenCalled();
+    expect(f.handlers.onFinished).not.toHaveBeenCalled();
+  },
+);
+
 test('本轮目录与凭证准备完成后才发送识别热词，保留已接纳的音频', async () => {
   let finish!: (words: readonly string[]) => void;
   const words = new Promise<readonly string[]>((resolve) => {

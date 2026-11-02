@@ -5,6 +5,7 @@ import {
   getFailureDiagnostics,
 } from '@unif/react-native-logger';
 import type { PcmAudioBuffer } from '../capture';
+import { describeSpeechCredentialFailure } from '../credentials';
 import type { SpeechCredential } from '../credentials';
 import { SPEECH_AUDIO_FORMAT, SPEECH_SESSION_MESSAGES } from './constants';
 import {
@@ -326,7 +327,12 @@ export function openSpeechSession(
       const result = await credentials.get({ signal: controller.signal });
       if (!active) return;
       if (result.status !== 'success') {
-        fail('credential');
+        if (result.status === 'failed')
+          end({
+            reason: 'credential',
+            message: describeSpeechCredentialFailure(result),
+          });
+        else fail('credential');
         return;
       }
       credential = result.credential;

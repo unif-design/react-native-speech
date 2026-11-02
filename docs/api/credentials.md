@@ -18,4 +18,6 @@
 
 宿主负责原身份的 HTTP 请求、响应结构校验和状态转换，库不携带企业 HTTP 客户端或服务地址。长期供应商密钥只能留在服务端；不要把凭证或原始错误正文写入日志。
 
-`readSpeechCredential(value: unknown, nowSeconds = Date.now()/1000)` 供宿主响应适配复用同一可用性校验，返回冻结的凭证快照或 null。宿主仍保留自身服务协议的严格字段校验。`SPEECH_CREDENTIAL_MESSAGES` 公开固定失败文案，供 HTTP 结果转换采用，避免维护第二份同义消息。
+`readSpeechCredential(value: unknown, nowSeconds = Date.now()/1000)` 供宿主响应适配复用同一可用性校验，返回冻结的凭证快照或 null。宿主仍保留自身服务协议的严格字段校验。
+
+`describeSpeechCredentialFailure(failure: Pick<SpeechCredentialFailed, 'reason' | 'httpStatus'>): string` 将原因转换为固定中文说明，供宿主 HTTP 适配与实时识别共用。`access` 且 HTTP 403 表示无权限，其他 `access` 表示登录状态不可用；`rejected`、`invalid_response`、`unavailable` 分别提示限流、响应无法确认和服务暂时不可用。函数不读取原始失败文案。`SPEECH_CREDENTIAL_MESSAGES` 保留各原因的默认说明；需要区分 HTTP 状态时使用上述函数。

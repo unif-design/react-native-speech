@@ -126,7 +126,7 @@
     "typescript": "^6.0.3"
   },
   "peerDependencies": {
-    "@unif/react-native-logger": "^0.1.3",
+    "@unif/react-native-logger": "^0.1.3 || ^0.2.0",
     "expo-audio": "58.0.10",
     "react": ">=19.3.1",
     "react-native": ">=0.88.1"

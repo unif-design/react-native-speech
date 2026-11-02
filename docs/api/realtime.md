@@ -14,7 +14,7 @@
 
 handlers 包含 `onStarted()`、`onPartial(text)`、`onFinal(text)`、`onFinished()`、`onError(error)`。文字原样交付；有效 sentence_id 的定稿只投递一次，不按相同文字推断重复。服务端 task-finished 可提前正常结束。onFinished/onError 互斥，清理先于终态通知，迟到事件不能恢复会话。
 
-`SpeechSessionError.reason` 为 `credential | audio_format | transport | protocol | rejected | unsupported`，包含固定中文 message 和可选实际 sourceCode。回调异常触发本会话清理，不向新接收方补结果。Web 异步交付 unsupported，不调用凭证、UUID 或 WebSocket。
+`SpeechSessionError.reason` 为 `credential | audio_format | transport | protocol | rejected | unsupported`，包含固定中文 message 和可选实际 sourceCode。凭证失败的 message 由 `describeSpeechCredentialFailure` 按原因与 HTTP 状态生成，不透传原始失败文案。回调异常触发本会话清理，不向新接收方补结果。Web 异步交付 unsupported，不调用凭证、UUID 或 WebSocket。
 
 `SpeechVocabularyReader` 接收 `{ signal }`，返回 `Promise<readonly string[]>`。词表与凭证并行准备，失败继续原识别；取消或 finish 结束本轮词表等待。协议按原规则去重、过滤超长词，最多 2000 个词、权重 4，context 最多 400 个 Unicode 字符且保留完整词；业务目录查询仍由宿主负责。
 
