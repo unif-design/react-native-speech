@@ -1,6 +1,7 @@
 import { useVoiceInput, SPEECH_AUDIO_FORMAT } from '@unif/react-native-speech';
 import {
   createSpeechCredentialAccess,
+  describeSpeechCredentialFailure,
   readSpeechCredential,
   SPEECH_CREDENTIAL_MESSAGES,
 } from '@unif/react-native-speech/credentials';
@@ -27,6 +28,10 @@ declare const permissions: VoiceInputPermissions;
 declare const speechHandlers: SpeechSessionHandlers;
 declare const captureHandlers: AudioCaptureHandlers;
 const credentials = createSpeechCredentialAccess(request);
+const credentialMessage: string = describeSpeechCredentialFailure({
+  reason: 'access',
+  httpStatus: 403,
+});
 const openRecognition: SpeechSessionOpener = (handlers) =>
   openSpeechSession({ credentials, createUuid }, handlers);
 const options: UseVoiceInputOptions = {
@@ -55,4 +60,5 @@ export {
   useVoiceInput,
   readSpeechCredential,
   SPEECH_CREDENTIAL_MESSAGES,
+  credentialMessage,
 };

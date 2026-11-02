@@ -7,7 +7,7 @@
 | React / React Native                | peer 范围为 >=19.3.1 / >=0.88.1；本仓开发组合为 19.3.1 / 0.88.1 |
 | Expo / Expo Modules Core            | 58.0.20 / 58.0.27，原生模块注册与生命周期                       |
 | expo-audio                          | **58.0.10**，宿主维护并应用对应补丁                             |
-| @unif/react-native-logger           | ^0.1.3，宿主共享日志运行时                                      |
+| @unif/react-native-logger           | ^0.1.3 或 ^0.2.0，宿主共享日志运行时                            |
 | react-native-url-polyfill / zustand | ^4.0.0 / ^5.0.16，由本库声明                                    |
 
 表中的开发组合不代表所有受支持版本组合均已完成设备验证。完整依赖声明见 [package.json](https://github.com/unif-design/react-native-speech/blob/main/package.json)。

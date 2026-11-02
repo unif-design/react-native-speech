@@ -24,12 +24,12 @@ const newer: SpeechCredential = { ...original, token: 'fixture-newer' };
 const invalidResponse = {
   status: 'failed',
   reason: 'invalid_response',
-  message: '语音凭证响应无法确认，请稍后重试。',
+  message: '返回的信息无法确认，请稍后重试。',
 };
 const unavailable = {
   status: 'failed',
   reason: 'unavailable',
-  message: '暂时无法获取语音凭证，请稍后重试。',
+  message: '服务暂时无法处理请求，请稍后重试。',
 };
 
 function success(credential = original): SpeechCredentialResult {
