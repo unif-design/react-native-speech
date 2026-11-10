@@ -1,6 +1,6 @@
 {
   "name": "@unif/react-native-speech",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "React Native 音频采集、临时凭证管理、实时语音识别与语音输入",
   "main": "./lib/module/index.js",
   "types": "./lib/typescript/src/index.d.ts",
