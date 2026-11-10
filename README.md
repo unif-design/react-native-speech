@@ -13,7 +13,7 @@ iOS／Android 需要完整原生宿主、麦克风权限和服务端签发的临
 | React        | `>=19.3.1`               | 19.3.1       |
 | React Native | `>=0.88.1`               | 0.88.1       |
 | Logger       | `^0.1.3`                 | 0.1.3        |
-| expo-audio   | 精确 58.0.10，需宿主补丁 | 58.0.10      |
+| expo-audio   | `^58.0.11`，需宿主补丁 | 58.0.11      |
 
 Expo Modules、权限和补丁配置见[原生接线](docs/native-setup.md)。补丁由宿主统一维护，本包不附带或自动应用；开发组合不代表全部版本组合已通过设备和识别服务验证。
 
@@ -22,7 +22,7 @@ Expo Modules、权限和补丁配置见[原生接线](docs/native-setup.md)。�
 1. 安装本库及依赖：
 
    ```sh
-   npm install @unif/react-native-speech @unif/react-native-logger@^0.1.3 expo-audio@58.0.10
+   npm install @unif/react-native-speech @unif/react-native-logger@^0.1.3 expo-audio@58.0.11
    ```
 
 2. 按[原生接线](docs/native-setup.md)准备补丁后的 SDK，同步 iOS Pods 并重新构建应用。
