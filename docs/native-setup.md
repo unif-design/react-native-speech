@@ -6,7 +6,7 @@
 | ----------------------------------- | --------------------------------------------------------------- |
 | React / React Native                | peer 范围为 >=19.3.1 / >=0.88.1；本仓开发组合为 19.3.1 / 0.88.1 |
 | Expo / Expo Modules Core            | 58.0.20 / 58.0.27，原生模块注册与生命周期                       |
-| expo-audio                          | **58.0.10**，宿主维护并应用对应补丁                             |
+| expo-audio                          | **58.0.11**，宿主维护并应用对应补丁                             |
 | @unif/react-native-logger           | ^0.1.3 或 ^0.2.0，宿主共享日志运行时                            |
 | react-native-url-polyfill / zustand | ^4.0.0 / ^5.0.16，由本库声明                                    |
 
@@ -16,7 +16,7 @@ UUID 由宿主函数提供；示例使用 `expo-crypto@58.0.7` 的 `randomUUID`�
 
 ## 宿主准备 SDK
 
-音频补丁由宿主统一维护和应用；本库不包含 `.patch` 副本，不提供自动修改消费者依赖的安装脚本。宿主需使用其维护的 `expo-audio+58.0.10.patch` 准备同版 SDK，再重新安装 Pods 并重建 Android／iOS。OTA 更新不能交付原生修订。
+音频补丁由宿主统一维护和应用；本库不包含 `.patch` 副本，不提供自动修改消费者依赖的安装脚本。宿主需使用其维护的 `expo-audio+58.0.11.patch` 准备同版 SDK，再重新安装 Pods 并重建 Android／iOS。OTA 更新不能交付原生修订。
 
 必要能力为：事件包含实际 encoding，严格采用真实短读字节；Android fallback 采样转换使用 SDK 已采用的 Media3 SonicAudioProcessor；两端明确交付 format／unavailable／interrupted／cleanup 错误；启动失败和 stop/release 均完成资源收尾。实际采集与宿主 SDK 验证以这些能力为前置。
 

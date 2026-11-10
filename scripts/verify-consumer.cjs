@@ -74,7 +74,7 @@ for (const name of ['expo-audio', '@unif/react-native-logger', 'react']) {
     `${name} must resolve to the host instance`,
   );
 }
-assert.equal(fromConsumer('expo-audio/package.json').version, '58.0.10');
+assert.equal(fromConsumer('expo-audio/package.json').version, '58.0.11');
 
 const ts = require('typescript');
 const configFile = path.join(consumer, 'tsconfig.json');

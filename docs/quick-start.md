@@ -3,7 +3,7 @@
 ## 安装
 
 ```sh
-npm install @unif/react-native-speech @unif/react-native-logger expo-audio@58.0.10
+npm install @unif/react-native-speech @unif/react-native-logger expo-audio@58.0.11
 ```
 
 补丁由宿主统一维护和应用，本包不分发副本或执行自动安装脚本。使用 Expo 58.0.20、Expo Modules Core 58.0.27、React 19.3.1、React Native 0.88.1 的原生宿主；完成[原生接线](native-setup.md)后重建。
