@@ -27,13 +27,13 @@ example 保留实际 iOS／Android 工程、Expo Modules 注册与麦克风权�
 
 正式交付同时需要库 CI 与宿主集成证据。完整原生构建、实际短读／采样转换、系统中断、权限拒绝、取消、重复接管、资源释放和真实服务转写分别记录；官方 SDK 的示例编译、网站构建与 Web unsupported 均不能替代补丁行为验证。
 
-当前 CI、保护规则、发布和共享 LLM 工具的维护来源见[交付配置与检查](#交付配置与检查)。通用规范使用 `uni-skills`：`code-organization` 说明目录与文件组织，`react-native-development` 说明 RN 实现要求，`react-native-library` 说明独立库与消费者验证，`documentation` 说明文档与文档站维护。Unif 的设计、测试、审查和交付按 `unif-portal-dev-skills` 对应技能执行；本库接口与行为以公开类型和有效契约为准。公共协议、输入默认值、终态和原生补丁变化必须复核实际消费者。
+当前 CI、保护规则、发布和共享 LLM 工具的维护来源见[交付配置与检查](#交付配置与检查)。通用规范使用 `uni-skills`：`uni-code-organization` 说明目录与文件组织，`uni-rn-dev` 说明 RN 实现要求，`uni-rn-library` 说明独立库与消费者验证，`uni-documentation` 说明文档与文档站维护。Unif 的设计、测试、审查和交付按 `unif-portal-dev-skills` 对应技能执行；本库接口与行为以公开类型和有效契约为准。公共协议、输入默认值、终态和原生补丁变化必须复核实际消费者。
 
 Git 提交和 PR 使用中文；正式 npm 版本经受保护分支与 release.yml 的 Trusted Publisher 发布。发布包校验、网站部署与设备验收各自提供证据。原始运行产物与个人设备记录留在仓库外。
 
 ## 交付配置与检查
 
-共享 CI、发布配置和检查工具由 `github-delivery` 的模板与工具维护。Unif 组织值由 `code-delivery` 的 `assets/organization.json` 维护，接入时落实为本库 `.github/organization.json`，记录组织、包名规则、Pages 地址、发布 App 身份及远端设置。工具运行时读取项目文件，不依赖其他技能的安装目录；适用技能按当前任务独立选择。
+共享 CI、发布配置和检查工具由 `uni-github-delivery` 的模板与工具维护。Unif 组织值由 `unif-code-delivery` 的 `assets/organization.json` 维护，接入时落实为本库 `.github/organization.json`，记录组织、包名规则、Pages 地址、发布 App 身份及远端设置。工具运行时读取项目文件，不依赖其他技能的安装目录；适用技能按当前任务独立选择。
 
 在仓库根目录按阶段执行：
 
