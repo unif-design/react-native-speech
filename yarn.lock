@@ -7201,14 +7201,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@unif/react-native-design@npm:1.13.6":
-  version: 1.13.6
-  resolution: "@unif/react-native-design@npm:1.13.6"
+"@unif/react-native-design@npm:1.20.0":
+  version: 1.20.0
+  resolution: "@unif/react-native-design@npm:1.20.0"
   dependencies:
     react-is: "npm:^19.2.8"
   peerDependencies:
     "@callstack/liquid-glass": ">=0.8.2 <0.9.0"
     "@unif/react-native-icons": ">=0.1.0"
+    "@unif/react-native-logger": ^0.2.0 || ^0.3.0
     react: ">=19.2.3 <20.0.0"
     react-native: ">=0.86.0"
     react-native-gesture-handler: ">=3.0.0 <4.0.0"
@@ -7217,21 +7218,25 @@ __metadata:
     react-native-safe-area-context: ">=5"
     react-native-svg: ">=15"
     react-native-worklets: ">=0.11.0 <0.14.0"
-  checksum: 10c0/6279fb030b2bb0da669af03aaa567159d74a90e1b10313985aa044566bd57baf44378409660641055b3a9ac1f72784a993f32f35aab4b866150275d68457b142
+  checksum: 10c0/7c185d990358f74112ba40c6430a46a54139ed5bb6170e74ae9d7dff1c8a796839dd111e6c9bcea55929f5e73c84df7112e8248ada8d640a3fdf325b4d611115
   languageName: node
   linkType: hard
 
-"@unif/react-native-logger@npm:0.1.3":
-  version: 0.1.3
-  resolution: "@unif/react-native-logger@npm:0.1.3"
+"@unif/react-native-logger@npm:^0.3.0":
+  version: 0.3.0
+  resolution: "@unif/react-native-logger@npm:0.3.0"
   dependencies:
     crypto-js: "npm:^4.2.0"
     lodash: "npm:^4.18.1"
   peerDependencies:
-    react: ^19.3.0
-    react-native: ">=0.88.0"
-    react-native-blob-util: ^0.25.1
-  checksum: 10c0/40023b6b757402a87cec347e59faf10357cc037a564857e04c09496cd40a936da5711c4a0b33f3ea2b16f4624ff36368e4f7ecd791d32c7c24509d251f1d950d
+    react-native: ">=0.86.0"
+    react-native-blob-util: 1.1.1
+  peerDependenciesMeta:
+    react-native:
+      optional: true
+    react-native-blob-util:
+      optional: true
+  checksum: 10c0/286ecd97099382796a11cbac8d1f4dc437003350d41dbd49e7f79d7391ff160e9c5af2a272a827bc306abcd79cdaf7397b6d681e670868772a787bf4522097cb
   languageName: node
   linkType: hard
 
@@ -7250,7 +7255,7 @@ __metadata:
     "@react-native/metro-config": "npm:0.88.1"
     "@react-native/typescript-config": "npm:0.88.1"
     "@types/react": "npm:~19.3.0"
-    "@unif/react-native-logger": "npm:0.1.3"
+    "@unif/react-native-logger": "npm:^0.3.0"
     "@unif/react-native-speech": "workspace:*"
     expo: "npm:58.0.20"
     expo-asset: "npm:58.0.18"
@@ -7259,7 +7264,7 @@ __metadata:
     expo-modules-core: "npm:58.0.27"
     react: "npm:19.3.1"
     react-native: "npm:0.88.1"
-    react-native-blob-util: "npm:0.25.1"
+    react-native-blob-util: "npm:1.1.1"
     react-native-builder-bob: "npm:^0.43.2"
     react-native-monorepo-config: "npm:^0.4.0"
   languageName: unknown
@@ -7276,7 +7281,7 @@ __metadata:
     "@docusaurus/types": "npm:3.10.1"
     "@mdx-js/react": "npm:^3.0.0"
     "@types/react": "npm:~19.3.0"
-    "@unif/react-native-design": "npm:1.13.6"
+    "@unif/react-native-design": "npm:1.20.0"
     prism-react-renderer: "npm:^2.3.0"
     react: "npm:19.3.1"
     react-dom: "npm:19.3.1"
@@ -7302,7 +7307,7 @@ __metadata:
     "@types/jest": "npm:^30.0.0"
     "@types/node": "npm:^24"
     "@types/react": "npm:~19.3.0"
-    "@unif/react-native-logger": "npm:0.1.3"
+    "@unif/react-native-logger": "npm:^0.3.0"
     commitlint: "npm:^21.2.1"
     del-cli: "npm:^8.0.1"
     eslint: "npm:^9.39.5"
@@ -7319,7 +7324,7 @@ __metadata:
     prettier: "npm:^3.9.10"
     react: "npm:19.3.1"
     react-native: "npm:0.88.1"
-    react-native-blob-util: "npm:0.25.1"
+    react-native-blob-util: "npm:1.1.1"
     react-native-builder-bob: "npm:^0.43.2"
     react-native-url-polyfill: "npm:^4.0.0"
     release-it: "npm:^19.2.4"
@@ -7328,7 +7333,7 @@ __metadata:
     typescript: "npm:^6.0.3"
     zustand: "npm:^5.0.16"
   peerDependencies:
-    "@unif/react-native-logger": ^0.1.3 || ^0.2.0
+    "@unif/react-native-logger": ^0.3.0
     expo-audio: ^58.0.11
     react: ">=19.3.1"
     react-native: ">=0.88.1"
@@ -19439,15 +19444,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-native-blob-util@npm:0.25.1":
-  version: 0.25.1
-  resolution: "react-native-blob-util@npm:0.25.1"
+"react-native-blob-util@npm:1.1.1":
+  version: 1.1.1
+  resolution: "react-native-blob-util@npm:1.1.1"
   dependencies:
     base-64: "npm:1.0.0"
   peerDependencies:
     react: "*"
-    react-native: "*"
-  checksum: 10c0/5e7591a55ee095297960d7b00359b17c587e1568884a5f598ee7d52e6939ca389925a4db0b1c60f5ae5f42848c0f5d16ccac1994623c5c41eb446c56a87f218d
+    react-native: ">=0.84.0"
+  checksum: 10c0/c20cee268588806f066f8f59bfcbc8819e4985d996fe0d750c70468eb1804bc67b62a01cea0d99cc0656508b1e2902607175970a629e73d568061db08844b86d
   languageName: node
   linkType: hard
 

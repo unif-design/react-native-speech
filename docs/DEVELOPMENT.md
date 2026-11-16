@@ -37,11 +37,15 @@ Git 提交和 PR 使用中文；正式 npm 版本经受保护分支与 release.y
 
 在仓库根目录按阶段执行：
 
-| 命令 | 检查范围 |
-| --- | --- |
-| `node .github/scripts/check-delivery.cjs` | 离线检查受管文件、组织配置与 source 元数据。 |
-| `node .github/scripts/check-library.cjs pack` | 完成库构建后，检查当前 tarball 的导出、声明与文件清单。 |
-| `node .github/scripts/check-library.cjs release` | 发行前校验 README、许可和发布配置，不执行发布。 |
+| 命令                                               | 检查范围                                                  |
+| -------------------------------------------------- | --------------------------------------------------------- |
+| `node .github/scripts/check-delivery.cjs`          | 离线检查受管文件、组织配置与 source 元数据。              |
+| `node .github/scripts/check-library.cjs pack`      | 完成库构建后，检查当前 tarball 的导出、声明与文件清单。   |
+| `node .github/scripts/check-library.cjs release`   | 发行前校验 README、许可和发布配置，不执行发布。           |
 | `node .github/scripts/check-library.cjs published` | 联网核验 npm 当前版本的元数据、下载完整性与实际 tarball。 |
 
 CI 与发布步骤见本库 `.github/workflows/`，组织配置调整以项目文件及当前授权为准。本地检查、远端 CI、npm 发布、文档部署和设备验收分别报告。
+
+## 共享异步日志
+
+日志消费正式 `@unif/react-native-logger@^0.3.0`，运行时仍由宿主统一安装。凭据、传输及清理的日志专用错误投影通过元数据生产器交给 Logger 异步执行，库不另建日志队列，也不等待日志完成。操作、阶段和原生事件现场状态先固定；业务失败分类、终态回调与资源释放顺序保持原契约。验证日志时显式读取生产器或使用正式 Logger 运行时观察实际记录，不能以 JSON 忽略函数代替脱敏验证。

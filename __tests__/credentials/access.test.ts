@@ -1,3 +1,5 @@
+import { loggerRuntimeFixture } from '../loggerRuntimeFixture';
+import { readLogCalls } from '../logMetadataFixture';
 import * as logging from '@unif/react-native-logger';
 import { createSpeechCredentialAccess } from '@unif/react-native-speech/credentials';
 import type {
@@ -8,6 +10,7 @@ import type {
 } from '@unif/react-native-speech/credentials';
 
 jest.mock('@unif/react-native-logger', () => ({
+  __esModule: true,
   ...jest.requireActual('@unif/react-native-logger'),
   createLogger: jest.fn(
     jest.requireActual('@unif/react-native-logger').createLogger,
@@ -74,7 +77,7 @@ test('缓存访问只记录自身转换的原异常，已返回失败及取消�
   const access = createSpeechCredentialAccess(request);
   expect(await access.get()).toEqual(unavailable);
   expect(warn).toHaveBeenCalledTimes(1);
-  expect(warn).toHaveBeenCalledWith(
+  expect(readLogCalls(warn.mock.calls)).toContainEqual([
     'credential.request_failed',
     expect.objectContaining({
       context: expect.objectContaining({ operationId: expect.any(String) }),
@@ -85,10 +88,12 @@ test('缓存访问只记录自身转换的原异常，已返回失败及取消�
         sourceCode: 'ECONNRESET',
       }),
     }),
-  );
+  ]);
   expect(await access.get()).toEqual(unavailable);
   expect(warn).toHaveBeenCalledTimes(1);
-  expect(JSON.stringify(warn.mock.calls)).not.toContain('private-token');
+  expect(JSON.stringify(readLogCalls(warn.mock.calls))).not.toContain(
+    'private-token',
+  );
   const late = deferred();
   request.mockReturnValueOnce(late.promise);
   const waiting = access.get();
@@ -117,15 +122,15 @@ test('上游成功但语音凭据校验失败由访问层记录且不输出凭�
   );
   expect(request).toHaveBeenCalledTimes(1);
   expect(warn).toHaveBeenCalledTimes(1);
-  expect(warn).toHaveBeenCalledWith(
+  expect(readLogCalls(warn.mock.calls)).toContainEqual([
     'credential.invalid',
     expect.objectContaining({
       phase: 'validate',
       code: 'speech.credentials.invalid_response',
       fields: { operation: 'read_credential', reason: 'invalid_response' },
     }),
-  );
-  expect(JSON.stringify(warn.mock.calls)).not.toMatch(
+  ]);
+  expect(JSON.stringify(readLogCalls(warn.mock.calls))).not.toMatch(
     /fixture-original|speech.example/,
   );
 });
@@ -483,3 +488,41 @@ test.each(['abort', 'dispose'] as const)(
     expect(request).toHaveBeenCalledTimes(1);
   },
 );
+
+test('正式Logger在业务失败返回后才投影凭据异常，保持一次请求和安全原因', async () => {
+  jest.useRealTimers();
+  jest.spyOn(console, 'warn').mockImplementation(() => {});
+  const actual = jest.requireActual<typeof import('@unif/react-native-logger')>(
+    '@unif/react-native-logger',
+  );
+  jest.spyOn(logging, 'createLogger').mockImplementation(actual.createLogger);
+  const projection = jest.spyOn(logging, 'getFailureDiagnostics');
+  const { handle, writes } = await loggerRuntimeFixture();
+  const request = jest
+    .fn()
+    .mockRejectedValueOnce(
+      Object.assign(new Error('private-token'), { code: 'ECONNRESET' }),
+    );
+  const access = createSpeechCredentialAccess(request);
+  try {
+    await expect(access.get()).resolves.toEqual(unavailable);
+    expect(projection).not.toHaveBeenCalled();
+    expect(writes).toHaveLength(0);
+    expect(request).toHaveBeenCalledTimes(1);
+    await handle.flush();
+    expect(projection).toHaveBeenCalledTimes(1);
+    expect(writes).toHaveLength(1);
+    expect(JSON.parse(writes[0].line)).toMatchObject({
+      phase: 'credential',
+      fields: {
+        operation: 'request',
+        sourceCode: 'ECONNRESET',
+        reason: 'connection_reset',
+      },
+    });
+    expect(writes[0].line).not.toContain('private-token');
+  } finally {
+    access.dispose();
+    handle.dispose();
+  }
+});
