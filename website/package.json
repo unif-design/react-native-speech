@@ -23,7 +23,7 @@
     "@docusaurus/tsconfig": "3.10.1",
     "@docusaurus/types": "3.10.1",
     "@types/react": "~19.3.0",
-    "@unif/react-native-design": "1.13.6",
+    "@unif/react-native-design": "1.20.0",
     "typescript": "^6.0.3"
   },
   "engines": {

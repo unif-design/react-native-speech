@@ -46,25 +46,29 @@ export function openSpeechSession(
   function recordFailure(
     operation: string,
     phase: string,
-    fields: Partial<ReturnType<typeof getFailureDiagnostics>>,
+    fields:
+      | Partial<ReturnType<typeof getFailureDiagnostics>>
+      | (() => Partial<ReturnType<typeof getFailureDiagnostics>>),
   ): void {
-    log.warn('speech.session.failed', {
+    // 记录当时状态；诊断投影在Logger任务中执行，不能读取收尾后的会话状态。
+    const status = !active
+      ? 'closed'
+      : started
+        ? 'started'
+        : opened
+          ? 'opened'
+          : 'preparing';
+    log.warn('speech.session.failed', () => ({
       context,
       phase,
       outcome: 'failed',
       code: 'speech.session.failed',
       fields: {
         operation,
-        status: !active
-          ? 'closed'
-          : started
-            ? 'started'
-            : opened
-              ? 'opened'
-              : 'preparing',
-        ...fields,
+        status,
+        ...(typeof fields === 'function' ? fields() : fields),
       },
-    });
+    }));
   }
 
   function safely(
@@ -75,7 +79,7 @@ export function openSpeechSession(
     try {
       action();
     } catch (error) {
-      recordFailure(operation, phase, getFailureDiagnostics(error));
+      recordFailure(operation, phase, () => getFailureDiagnostics(error));
       // 清理和终态回调异常不能中断其余资源释放或生成第二次结果。
     }
   }
@@ -144,7 +148,7 @@ export function openSpeechSession(
     try {
       callback();
     } catch (error) {
-      recordFailure(operation, 'callback', getFailureDiagnostics(error));
+      recordFailure(operation, 'callback', () => getFailureDiagnostics(error));
       close();
     }
   }
@@ -164,7 +168,7 @@ export function openSpeechSession(
       }
     } catch (error) {
       if (active)
-        recordFailure(operation, 'send', getFailureDiagnostics(error));
+        recordFailure(operation, 'send', () => getFailureDiagnostics(error));
       fail('transport');
     } finally {
       draining = false;
@@ -193,7 +197,9 @@ export function openSpeechSession(
       );
     } catch (error) {
       if (active)
-        recordFailure('read_audio', 'prepare', getFailureDiagnostics(error));
+        recordFailure('read_audio', 'prepare', () =>
+          getFailureDiagnostics(error),
+        );
       fail('audio_format');
       return;
     }
@@ -214,14 +220,32 @@ export function openSpeechSession(
       socket.send(createSpeechStartCommand(taskId, vocabulary));
     } catch (error) {
       if (active)
-        recordFailure('send_start', 'send', getFailureDiagnostics(error));
+        recordFailure('send_start', 'send', () => getFailureDiagnostics(error));
       fail('transport');
     }
   }
 
   function handleTransportError(event: WebSocketErrorEvent): void {
-    if (active)
-      recordFailure('socket_error', 'transport', getFailureDiagnostics(event));
+    if (active) {
+      // RN error是普通Event；只固定扩展数据属性，不在业务栈触发未知getter。
+      const failure: Record<string, unknown> = {};
+      let unreadable = false;
+      for (const key of ['name', 'code', 'message', 'cause', 'stack']) {
+        try {
+          const field = Object.getOwnPropertyDescriptor(event, key);
+          if (field) {
+            if ('value' in field) failure[key] = field.value;
+            else unreadable = true;
+          }
+        } catch {
+          unreadable = true;
+        }
+      }
+      recordFailure('socket_error', 'transport', () => ({
+        ...getFailureDiagnostics(failure),
+        ...(unreadable ? { causeTruncated: true } : {}),
+      }));
+    }
     fail('transport');
   }
 
@@ -315,9 +339,7 @@ export function openSpeechSession(
           ),
         ]).catch((error) => {
           if (active && !vocabularyController.signal.aborted)
-            recordFailure(
-              'read_vocabulary',
-              'prepare',
+            recordFailure('read_vocabulary', 'prepare', () =>
               getFailureDiagnostics(error),
             );
           return [];
@@ -344,7 +366,9 @@ export function openSpeechSession(
       if (!active) return;
     } catch (error) {
       if (active)
-        recordFailure('credential', 'prepare', getFailureDiagnostics(error));
+        recordFailure('credential', 'prepare', () =>
+          getFailureDiagnostics(error),
+        );
       fail('credential');
       return;
     }
@@ -371,7 +395,7 @@ export function openSpeechSession(
       socket.addEventListener('close', handleTransportClose);
     } catch (error) {
       if (active)
-        recordFailure(operation, 'connect', getFailureDiagnostics(error));
+        recordFailure(operation, 'connect', () => getFailureDiagnostics(error));
       fail('transport');
     }
   }

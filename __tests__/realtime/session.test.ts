@@ -1,3 +1,4 @@
+import { readLogCalls, readLogMetadata } from '../logMetadataFixture';
 import {
   openSpeechSession,
   SPEECH_AUDIO_FORMAT,
@@ -359,13 +360,13 @@ test.each([
   expect(handlers.onError).toHaveBeenCalledTimes(1);
   expect(handlers.onFinished).not.toHaveBeenCalled();
   expect(JSON.stringify(handlers.onError.mock.calls)).not.toContain('secret');
-  expect(mockWarn).toHaveBeenCalledWith(
+  expect(readLogCalls(mockWarn.mock.calls)).toContainEqual([
     'speech.session.failed',
     expect.objectContaining({
       phase: boundary.startsWith('get-') ? 'prepare' : 'connect',
       fields: expect.objectContaining({ errorType: 'Error' }),
     }),
-  );
+  ]);
   for (const socket of SocketFixture.instances) assertReleased(socket);
 });
 
@@ -719,7 +720,7 @@ test('WebSocket error retains only safe cause and session state', async () => {
       url: credential.wsUrl,
     });
   expect(handlers.onError).toHaveBeenCalledTimes(1);
-  expect(mockWarn).toHaveBeenCalledWith(
+  expect(readLogCalls(mockWarn.mock.calls)).toContainEqual([
     'speech.session.failed',
     expect.objectContaining({
       context: expect.objectContaining({ operationId: expect.any(String) }),
@@ -731,8 +732,8 @@ test('WebSocket error retains only safe cause and session state', async () => {
         sourceCode: 'ECONNRESET',
       }),
     }),
-  );
-  expect(JSON.stringify(mockWarn.mock.calls)).not.toMatch(
+  ]);
+  expect(JSON.stringify(readLogCalls(mockWarn.mock.calls))).not.toMatch(
     /private-speech-token|ASR.example/,
   );
   assertReleased(socket);
@@ -753,15 +754,15 @@ test.each([1000, 1006, 1011, '1006', 999, 5000, NaN, Infinity])(
       });
     expect(handlers.onError).toHaveBeenCalledTimes(1);
     expect(mockWarn).toHaveBeenCalledTimes(1);
-    const metadata = mockWarn.mock.calls[0][1];
+    const metadata = readLogMetadata(mockWarn.mock.calls[0][1]);
     expect(metadata).toMatchObject({
       phase: 'transport',
       fields: { operation: 'socket_close', reason: 'socket_closed' },
     });
     if (typeof code === 'number' && [1000, 1006, 1011].includes(code))
-      expect(metadata.fields.sourceCode).toBe(code);
+      expect(metadata.fields?.sourceCode).toBe(code);
     else expect(metadata.fields).not.toHaveProperty('sourceCode');
-    expect(JSON.stringify(mockWarn.mock.calls)).not.toMatch(
+    expect(JSON.stringify(readLogCalls(mockWarn.mock.calls))).not.toMatch(
       /private-recognition-text|private-audio/,
     );
     assertReleased(socket);
@@ -789,15 +790,15 @@ test.each([
       expect.objectContaining({ reason: 'rejected', sourceCode }),
     );
     expect(mockWarn).toHaveBeenCalledTimes(1);
-    const metadata = mockWarn.mock.calls[0][1];
+    const metadata = readLogMetadata(mockWarn.mock.calls[0][1]);
     expect(metadata).toMatchObject({
       phase: 'receive',
       fields: { operation: 'provider_rejection', reason: 'rejected' },
     });
     if (sourceCode === 'InvalidApiKey' || sourceCode === 'invalid_api_key')
-      expect(metadata.fields.sourceCode).toBe(sourceCode);
+      expect(metadata.fields?.sourceCode).toBe(sourceCode);
     else expect(metadata.fields).not.toHaveProperty('sourceCode');
-    expect(JSON.stringify(mockWarn.mock.calls)).not.toMatch(
+    expect(JSON.stringify(readLogCalls(mockWarn.mock.calls))).not.toMatch(
       /private-token|private-host|private-result/,
     );
   },
@@ -817,7 +818,7 @@ test.each(['send-start', 'send-audio', 'send-finish'] as const)(
     else if (operation === 'send-audio') session.sendAudio(pcm());
     else session.finish();
     expect(handlers.onError).toHaveBeenCalledTimes(1);
-    expect(mockWarn).toHaveBeenCalledWith(
+    expect(readLogCalls(mockWarn.mock.calls)).toContainEqual([
       'speech.session.failed',
       expect.objectContaining({
         phase: 'send',
@@ -826,8 +827,8 @@ test.each(['send-start', 'send-audio', 'send-finish'] as const)(
           errorType: 'Error',
         }),
       }),
-    );
-    expect(JSON.stringify(mockWarn.mock.calls)).not.toContain(
+    ]);
+    expect(JSON.stringify(readLogCalls(mockWarn.mock.calls))).not.toContain(
       'private diagnostic',
     );
     assertReleased(socket);
@@ -845,7 +846,7 @@ test('cleanup and callback failures stay distinct and preserve normal finish del
   expect(handlers.onFinished).toHaveBeenCalledTimes(1);
   expect(handlers.onError).not.toHaveBeenCalled();
   expect(mockWarn).toHaveBeenCalledTimes(2);
-  expect(mockWarn).toHaveBeenCalledWith(
+  expect(readLogCalls(mockWarn.mock.calls)).toContainEqual([
     'speech.session.failed',
     expect.objectContaining({
       phase: 'cleanup',
@@ -854,8 +855,8 @@ test('cleanup and callback failures stay distinct and preserve normal finish del
         errorType: 'Error',
       }),
     }),
-  );
-  expect(mockWarn).toHaveBeenCalledWith(
+  ]);
+  expect(readLogCalls(mockWarn.mock.calls)).toContainEqual([
     'speech.session.failed',
     expect.objectContaining({
       phase: 'callback',
@@ -864,8 +865,8 @@ test('cleanup and callback failures stay distinct and preserve normal finish del
         errorType: 'TypeError',
       }),
     }),
-  );
-  expect(JSON.stringify(mockWarn.mock.calls)).not.toMatch(
+  ]);
+  expect(JSON.stringify(readLogCalls(mockWarn.mock.calls))).not.toMatch(
     /private diagnostic|private-callback/,
   );
 });
@@ -877,7 +878,7 @@ test('progress observer failure is logged without a second terminal callback', a
     throw new Error('private-transcript');
   });
   socket.emit('message', sentence('private-transcript', false));
-  expect(mockWarn).toHaveBeenCalledWith(
+  expect(readLogCalls(mockWarn.mock.calls)).toContainEqual([
     'speech.session.failed',
     expect.objectContaining({
       phase: 'callback',
@@ -886,10 +887,10 @@ test('progress observer failure is logged without a second terminal callback', a
         errorType: 'Error',
       }),
     }),
-  );
+  ]);
   expect(handlers.onError).not.toHaveBeenCalled();
   expect(handlers.onFinished).not.toHaveBeenCalled();
-  expect(JSON.stringify(mockWarn.mock.calls)).not.toContain(
+  expect(JSON.stringify(readLogCalls(mockWarn.mock.calls))).not.toContain(
     'private-transcript',
   );
   assertReleased(socket);
@@ -909,7 +910,7 @@ test('vocabulary failure records fallback without logging its words, cancellatio
   expect(
     JSON.parse(socket.sent[0] as string).payload.parameters,
   ).not.toHaveProperty('vocabulary');
-  expect(mockWarn).toHaveBeenCalledWith(
+  expect(readLogCalls(mockWarn.mock.calls)).toContainEqual([
     'speech.session.failed',
     expect.objectContaining({
       phase: 'prepare',
@@ -918,7 +919,7 @@ test('vocabulary failure records fallback without logging its words, cancellatio
         sourceCode: 'ETIMEDOUT',
       }),
     }),
-  );
+  ]);
   first.session.close();
   mockWarn.mockClear();
   const second = setup();
@@ -943,7 +944,9 @@ test('unreadable close code cannot prevent the original terminal and cleanup', a
   }).not.toThrow();
   expect(handlers.onError).toHaveBeenCalledTimes(1);
   expect(mockWarn).toHaveBeenCalledTimes(1);
-  expect(mockWarn.mock.calls[0][1].fields).not.toHaveProperty('sourceCode');
+  expect(readLogMetadata(mockWarn.mock.calls[0][1]).fields).not.toHaveProperty(
+    'sourceCode',
+  );
   assertReleased(socket);
 });
 
@@ -961,7 +964,7 @@ test('audio preparation exception records its safe type without reading or retai
   expect(handlers.onError).toHaveBeenCalledWith(
     expect.objectContaining({ reason: 'audio_format' }),
   );
-  expect(mockWarn).toHaveBeenCalledWith(
+  expect(readLogCalls(mockWarn.mock.calls)).toContainEqual([
     'speech.session.failed',
     expect.objectContaining({
       phase: 'prepare',
@@ -970,8 +973,10 @@ test('audio preparation exception records its safe type without reading or retai
         errorType: 'TypeError',
       }),
     }),
+  ]);
+  expect(JSON.stringify(readLogCalls(mockWarn.mock.calls))).not.toContain(
+    'private-pcm',
   );
-  expect(JSON.stringify(mockWarn.mock.calls)).not.toContain('private-pcm');
   assertReleased(socket);
 });
 
@@ -983,7 +988,7 @@ test('invalid protocol records only the receive classification and retains its s
   expect(handlers.onError).toHaveBeenCalledWith(
     expect.objectContaining({ reason: 'protocol' }),
   );
-  expect(mockWarn).toHaveBeenCalledWith(
+  expect(readLogCalls(mockWarn.mock.calls)).toContainEqual([
     'speech.session.failed',
     expect.objectContaining({
       phase: 'receive',
@@ -992,8 +997,8 @@ test('invalid protocol records only the receive classification and retains its s
         reason: 'protocol',
       }),
     }),
-  );
-  expect(JSON.stringify(mockWarn.mock.calls)).not.toContain(
+  ]);
+  expect(JSON.stringify(readLogCalls(mockWarn.mock.calls))).not.toContain(
     'private-invalid-protocol',
   );
   assertReleased(socket);
@@ -1108,5 +1113,57 @@ test('a socket adapter closing during listener setup keeps its later exception s
   expect(handlers.onError).not.toHaveBeenCalled();
   expect(handlers.onFinished).not.toHaveBeenCalled();
   expect(mockWarn).not.toHaveBeenCalled();
+  assertReleased(socket);
+});
+
+test('延迟读取诊断时保留WebSocket错误现场字段及opened状态，不读取清理后的事件', async () => {
+  const { ready, handlers } = setup();
+  const socket = await ready();
+  socket.emit('open');
+  const failure = {
+    type: 'error',
+    code: 'ECONNRESET',
+    message: 'private-native-message',
+  };
+  for (const listener of socket.listeners.get('error') ?? []) listener(failure);
+  expect(handlers.onError).toHaveBeenCalledTimes(1);
+  expect(socket.listenerCount).toBe(0);
+  failure.code = 'ERR_BAD_RESPONSE';
+  failure.message = 'late-private-message';
+  expect(typeof mockWarn.mock.calls[0][1]).toBe('function');
+  const metadata = readLogMetadata(mockWarn.mock.calls[0][1]);
+  expect(metadata).toMatchObject({
+    phase: 'transport',
+    fields: {
+      operation: 'socket_error',
+      status: 'opened',
+      sourceCode: 'ECONNRESET',
+      reason: 'connection_reset',
+    },
+  });
+  expect(JSON.stringify(metadata)).not.toMatch(/private-native|late-private/);
+});
+
+test('WebSocket错误扩展getter不在业务或投影时执行，不可读事实保留且正常结束一次', async () => {
+  const { ready, handlers } = setup();
+  const socket = await ready();
+  socket.emit('open');
+  const getter = jest.fn(() => {
+    throw new Error('private-getter');
+  });
+  const failure = Object.defineProperties(
+    { type: 'error' },
+    { code: { get: getter }, message: { get: getter } },
+  );
+  for (const listener of socket.listeners.get('error') ?? []) listener(failure);
+  expect(getter).not.toHaveBeenCalled();
+  expect(handlers.onError).toHaveBeenCalledTimes(1);
+  const metadata = readLogMetadata(mockWarn.mock.calls[0][1]);
+  expect(metadata).toMatchObject({
+    phase: 'transport',
+    fields: { status: 'opened', causeTruncated: true },
+  });
+  expect(getter).not.toHaveBeenCalled();
+  expect(JSON.stringify(metadata)).not.toContain('private-getter');
   assertReleased(socket);
 });

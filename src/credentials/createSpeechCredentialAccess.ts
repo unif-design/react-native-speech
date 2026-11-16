@@ -99,7 +99,7 @@ export function createSpeechCredentialAccess(
             if (!settled && !signal?.aborted && !lifetime.signal.aborted)
               createLogger('speech.credentials').warn(
                 'credential.request_failed',
-                {
+                () => ({
                   context,
                   phase: 'credential',
                   outcome: 'failed',
@@ -108,7 +108,7 @@ export function createSpeechCredentialAccess(
                     operation: 'request',
                     ...getFailureDiagnostics(error),
                   },
-                },
+                }),
               );
             complete({
               status: 'failed',
